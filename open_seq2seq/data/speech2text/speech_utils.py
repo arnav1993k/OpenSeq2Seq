@@ -412,7 +412,7 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
   else:
     raise ValueError('Unknown features type: {}'.format(features_type))
   if pad_to>0:
-    features = np.pad(features, [(0, pad_to- features.shape[0]%pad_to), (0, 0)], mode='constant',  constant_values=1e-20)
+    features = np.pad(features, [(0, pad_to- features.shape[0]%pad_to), (0, 0)], mode='constant',  constant_values=-10)
   if pad_to > 0:
     # print(features.shape)
     assert features.shape[0] % pad_to == 0
