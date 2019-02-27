@@ -178,7 +178,7 @@ Returns:
 
   except PreprocessOnTheFlyException:
     sample_freq, signal = wave.read(filename)
-    features, duration = get_speech_features(
+    features, duration = get_speech_features_librosa(
         signal, sample_freq, num_features, pad_to, features_type,
         window_size, window_stride, augmentation,
     )
