@@ -381,13 +381,13 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
   n_window_stride = int(sample_freq * window_stride)
   assert n_window_size//2==n_window_stride
   # making sure length of the audio is divisible by 8 (fp16 optimization)
-  length = 1 + int(math.ceil(
-      (1.0 * signal.shape[0] - n_window_size) / n_window_stride
-  ))
-  if pad_to > 0:
-    if length % pad_to != 0:
-      pad_size = (pad_to - length % pad_to) * (n_window_stride)+7*n_window_size
-      signal = np.pad(signal, (0, pad_size), mode='constant')
+  # length = 1 + int(math.ceil(
+  #     (1.0 * signal.shape[0] - n_window_size) / n_window_stride
+  # ))
+  # if pad_to > 0:
+  #   if length % pad_to != 0:
+  #     pad_size = (pad_to - length % pad_to) * (n_window_stride)+7*n_window_size
+  #     signal = np.pad(signal, (0, pad_size), mode='constant')
 
   if features_type == 'spectrogram' or features_type == 'logspectrogram':
     features = librosa.magphase(librosa.stft(y=signal, n_fft=n_window_size, hop_length=n_window_stride), power=1)[0]
@@ -408,11 +408,13 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
     if features_type == "logfbank":
         features[features<=1e-5]=1e-5
         features = np.log(features)
-        print(features.shape)
+
   else:
     raise ValueError('Unknown features type: {}'.format(features_type))
-
+  if pad_to>0:
+    features = np.pad(features, [(0, pad_to- features.shape[0]%pad_to), (0, 0)], mode='constant',  constant_values=1e-20)
   if pad_to > 0:
+    # print(features.shape)
     assert features.shape[0] % pad_to == 0
   # mean = np.mean(features)
   # std_dev = np.std(features)+1e-20
