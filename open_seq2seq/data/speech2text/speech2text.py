@@ -43,6 +43,7 @@ class Speech2TextDataLayer(DataLayer):
         'syn_subdirs': list,
         'window_size': float,
         'window_stride': float,
+        'librosa':bool,
     })
 
   def __init__(self, params, model, num_workers, worker_id):

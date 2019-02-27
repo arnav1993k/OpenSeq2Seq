@@ -18,7 +18,7 @@ from .speech_utils import get_speech_features, get_speech_features_from_file, \
 class SpeechUtilsTests(tf.test.TestCase):
 
   def test_augment_audio_signal(self):
-    filename = 'open_seq2seq/test_utils/toy_speech_data/wav_files/46gc040q.wav'
+    filename = "/raid/Speech/LibriSpeech/clean_noise/noised-16KHz/noisy_-10db/5536-43358-0015.wav"
     freq_s, signal = wave.read(filename)
     augmentation = {
         'time_stretch_ratio': 0.2,
@@ -42,8 +42,8 @@ class SpeechUtilsTests(tf.test.TestCase):
       self.assertGreaterEqual(signal.shape[0] * 1.5, signal_augm.shape[0])
 
   def test_get_speech_features_from_file(self):
-    dirname = 'open_seq2seq/test_utils/toy_speech_data/wav_files/'
-    for name in ['46gc040q.wav', '206o0103.wav', '48rc041b.wav']:
+    dirname = '/raid/Speech/LibriSpeech/clean_noise/noised-16KHz/noisy_-10db/'
+    for name in ['5536-43358-0015.wav']:
       filename = os.path.join(dirname, name)
       for num_features in [161, 120]:
         for window_stride in [10e-3, 5e-3, 40e-3]:
@@ -86,7 +86,7 @@ class SpeechUtilsTests(tf.test.TestCase):
         'noise_level_min': -90,
         'noise_level_max': -46,
     }
-    filename = 'open_seq2seq/test_utils/toy_speech_data/wav_files/46gc040q.wav'
+    filename = '/raid/Speech/LibriSpeech/clean_noise/noised-16KHz/noisy_-10db/5536-43358-0015.wav'
     num_features = 161
     input_features_clean, _ = get_speech_features_from_file(
         filename, num_features, augmentation=None,

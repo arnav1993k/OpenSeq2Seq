@@ -11,6 +11,7 @@ import python_speech_features as psf
 import resampy as rs
 import scipy.io.wavfile as wave
 import librosa
+import soundfile as sf
 
 class PreprocessOnTheFlyException(Exception):
   """ Exception that is thrown to not load preprocessed features from disk;
@@ -177,11 +178,18 @@ Returns:
                                        data_format=cache_format)
 
   except PreprocessOnTheFlyException:
-    sample_freq, signal = wave.read(filename)
-    features, duration = get_speech_features_librosa(
-        signal, sample_freq, num_features, pad_to, features_type,
-        window_size, window_stride, augmentation,
-    )
+    if params["librosa"]:
+        signal, sample_freq = sf.read(filename)
+        features, duration = get_speech_features_librosa(
+            signal, sample_freq, num_features, pad_to, features_type,
+            window_size, window_stride, augmentation,
+        )
+    else:
+        sample_freq, signal = wave.read(filename)
+        features, duration = get_speech_features(
+            signal, sample_freq, num_features, pad_to, features_type,
+            window_size, window_stride, augmentation,
+        )
 
   except (OSError, FileNotFoundError, RegenerateCacheException):
     sample_freq, signal = wave.read(filename)
@@ -373,7 +381,7 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
   # else:
     # signal = (normalize_signal(signal.astype(np.float32)) * 32767.0).astype(
     #     np.int16)
-  signal = normalize_signal(signal.astype(np.float32))
+  # signal = normalize_signal(signal.astype(np.float32))
 
   audio_duration = len(signal) * 1.0 / sample_freq
 
@@ -404,15 +412,14 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
     features = features.T
 
   elif features_type == 'logfbank' or features_type == "fbank":
-    features = get_mel(signal, sample_freq, n_window_size,n_window_stride, num_features)
+    features = get_mel(signal, sample_freq, 512, n_window_size,n_window_stride, num_features)
     if features_type == "logfbank":
-        features[features<=1e-5]=1e-5
         features = np.log(features)
 
   else:
     raise ValueError('Unknown features type: {}'.format(features_type))
-  if pad_to>0:
-    features = np.pad(features, [(0, pad_to- features.shape[0]%pad_to), (0, 0)], mode='constant',  constant_values=-10)
+  # if pad_to>0:
+  #   features = np.pad(features, [(0, pad_to- features.shape[0]%pad_to), (0, 0)], mode='constant',  constant_values=-)
   if pad_to > 0:
     # print(features.shape)
     assert features.shape[0] % pad_to == 0
@@ -421,7 +428,7 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
   # features = (features - mean) / std_dev
   return features, audio_duration
 
-def get_mel(signal, sample_freq, n_fft, stride, features):
+def get_mel(signal, sample_freq, n_fft, size,stride, features, pad_to=8):
     mel_basis = librosa.filters.mel(sr=16000,
                                     n_fft=n_fft,
                                     n_mels=features,
@@ -429,7 +436,10 @@ def get_mel(signal, sample_freq, n_fft, stride, features):
                                     norm=None,
                                     fmin=0,
                                     fmax=8000)
-    mag, ph = librosa.magphase(librosa.stft(y=signal, n_fft=n_fft, hop_length=stride), power=1)
-    feat = np.dot(mel_basis, mag)
-    feat = np.log(np.clip(feat, a_min=1e-5, a_max=None)).T
+    mag, ph = librosa.magphase(librosa.stft(y=signal, n_fft=n_fft, win_length=size, hop_length=stride), power=1)
+    feat = np.dot(mel_basis, mag).T
+    if pad_to>0:
+        feat = np.pad(feat, [(0, pad_to - feat.shape[0] % pad_to), (0, 0)], mode='constant',
+                          constant_values=1e-2)
+    feat = np.clip(feat, a_min=1e-2, a_max=None)
     return feat
