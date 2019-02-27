@@ -386,7 +386,7 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
   ))
   if pad_to > 0:
     if length % pad_to != 0:
-      pad_size = (pad_to - length % pad_to) * (n_window_stride)-n_window_size
+      pad_size = (pad_to - length % pad_to) * (n_window_stride)+7*n_window_size
       signal = np.pad(signal, (0, pad_size), mode='constant')
 
   if features_type == 'spectrogram' or features_type == 'logspectrogram':
@@ -408,6 +408,7 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
     if features_type == "logfbank":
         features[features<=1e-5]=1e-5
         features = np.log(features)
+        print(features.shape)
   else:
     raise ValueError('Unknown features type: {}'.format(features_type))
 
