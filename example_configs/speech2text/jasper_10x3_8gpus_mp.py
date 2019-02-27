@@ -15,7 +15,7 @@ base_params = {
     "num_epochs": 400,
 
     "num_gpus": 8,
-    "batch_size_per_gpu": 64,
+    "batch_size_per_gpu": 32,
     "iter_size": 1,
 
     "save_summaries_steps": 100,
@@ -24,7 +24,7 @@ base_params = {
     "eval_steps": 2200,
     "save_checkpoint_steps": 1100,
     "num_checkpoints": 5,
-    "logdir": "jasper_log_folder",
+    "logdir": "/raid/Speech/models/jasper/",
 
     "optimizer": "Momentum",
     "optimizer_params": {
@@ -65,70 +65,70 @@ base_params = {
                 "kernel_size": [11], "stride": [1],
                 "num_channels": 256, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.8,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [11], "stride": [1],
                 "num_channels": 256, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.8,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [13], "stride": [1],
                 "num_channels": 384, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.8,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [13], "stride": [1],
                 "num_channels": 384, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.8,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [17], "stride": [1],
                 "num_channels": 512, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.8,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [17], "stride": [1],
                 "num_channels": 512, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.8,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [21], "stride": [1],
                 "num_channels": 640, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.7,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [21], "stride": [1],
                 "num_channels": 640, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.7,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [25], "stride": [1],
                 "num_channels": 768, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.7,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 3,
                 "kernel_size": [25], "stride": [1],
                 "num_channels": 768, "padding": "SAME",
                 "dilation":[1], "dropout_keep_prob": 0.7,
-                "residual": True
+                "residual": True, "residual_dense": True
             },
             {
                 "type": "conv1d", "repeat": 1,
@@ -181,12 +181,14 @@ train_params = {
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
-            "/data/librispeech/librivox-train-clean-100.csv",
-            "/data/librispeech/librivox-train-clean-360.csv",
-            "/data/librispeech/librivox-train-other-500.csv",
+            #"/raid/Speech/LibriSpeech/dev-other-wav-16KHz/noisy.csv"
+             "/data/librispeech/librivox-train-clean-100.csv",
+             "/data/librispeech/librivox-train-clean-360.csv",
+             "/data/librispeech/librivox-train-other-500.csv",
         ],
         "max_duration": 16.7,
         "shuffle": True,
+	"librosa":True
     },
 }
 
@@ -200,6 +202,7 @@ eval_params = {
             "/data/librispeech/librivox-dev-clean.csv",
         ],
         "shuffle": False,
+	"librosa":True
     },
 }
 
@@ -213,5 +216,6 @@ infer_params = {
             "/data/librispeech/librivox-test-clean.csv",
         ],
         "shuffle": False,
+	"librosa":True
     },
 }
