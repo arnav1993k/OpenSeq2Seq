@@ -11,7 +11,7 @@ import python_speech_features as psf
 import resampy as rs
 import scipy.io.wavfile as wave
 import librosa
-import soundfile as sf
+
 
 class PreprocessOnTheFlyException(Exception):
   """ Exception that is thrown to not load preprocessed features from disk;
@@ -179,7 +179,7 @@ Returns:
 
   except PreprocessOnTheFlyException:
     if params["librosa"]:
-        signal, sample_freq = sf.read(filename)
+        signal, sample_freq = librosa.load(filename, sr=16000)
         features, duration = get_speech_features_librosa(
             signal, sample_freq, num_features, pad_to, features_type,
             window_size, window_stride, augmentation,
