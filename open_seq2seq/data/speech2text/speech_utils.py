@@ -10,7 +10,7 @@ import numpy as np
 import python_speech_features as psf
 import resampy as rs
 import scipy.io.wavfile as wave
-
+import librosa
 
 class PreprocessOnTheFlyException(Exception):
   """ Exception that is thrown to not load preprocessed features from disk;
@@ -185,7 +185,7 @@ Returns:
 
   except (OSError, FileNotFoundError, RegenerateCacheException):
     sample_freq, signal = wave.read(filename)
-    features, duration = get_speech_features(
+    features, duration = get_speech_features_librosa(
         signal, sample_freq, num_features, pad_to, features_type,
         window_size, window_stride, augmentation,
     )
@@ -233,8 +233,8 @@ def augment_audio_signal(signal, sample_freq, augmentation):
   signal_float += np.random.randn(signal_float.shape[0]) * \
                   10.0 ** (noise_level_db / 20.0)
 
-  return (normalize_signal(signal_float) * 32767.0).astype(np.int16)
-
+  # return (normalize_signal(signal_float) * 32767.0).astype(np.int16)
+  return signal_float
 
 def get_speech_features(signal, sample_freq, num_features, pad_to=8,
                         features_type='spectrogram',
@@ -335,3 +335,98 @@ def get_speech_features(signal, sample_freq, num_features, pad_to=8,
   std_dev = np.std(features)
   features = (features - mean) / std_dev
   return features, audio_duration
+def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
+                        features_type='logfbank',
+                        window_size=20e-3,
+                        window_stride=10e-3,
+                        augmentation=None):
+  """Function to convert raw audio signal to numpy array of features.
+
+  Args:
+    signal (np.array): np.array containing raw audio signal.
+    sample_freq (float): frames per second.
+    num_features (int): number of speech features in frequency domain.
+    pad_to (int): if specified, the length will be padded to become divisible
+        by ``pad_to`` parameter.
+    features_type (string): 'mfcc' or 'spectrogram'.
+    window_size (float): size of analysis window in milli-seconds.
+    window_stride (float): stride of analysis window in milli-seconds.
+    augmentation (dict, optional): dictionary of augmentation parameters. See
+        :func:`get_speech_features_from_file` for specification and example.
+
+  Returns:
+    np.array: np.array of audio features with shape=[num_time_steps,
+    num_features].
+    audio_duration (float): duration of the signal in seconds
+  """
+  if augmentation is not None:
+    if 'time_stretch_ratio' not in augmentation:
+      raise ValueError('time_stretch_ratio has to be included in augmentation '
+                       'when augmentation it is not None')
+    if 'noise_level_min' not in augmentation:
+      raise ValueError('noise_level_min has to be included in augmentation '
+                       'when augmentation it is not None')
+    if 'noise_level_max' not in augmentation:
+      raise ValueError('noise_level_max has to be included in augmentation '
+                       'when augmentation it is not None')
+    signal = augment_audio_signal(signal, sample_freq, augmentation)
+  # else:
+    # signal = (normalize_signal(signal.astype(np.float32)) * 32767.0).astype(
+    #     np.int16)
+  signal = normalize_signal(signal.astype(np.float32))
+
+  audio_duration = len(signal) * 1.0 / sample_freq
+
+  n_window_size = int(sample_freq * window_size)
+  n_window_stride = int(sample_freq * window_stride)
+  assert n_window_size//2==n_window_stride
+  # making sure length of the audio is divisible by 8 (fp16 optimization)
+  length = 1 + int(math.ceil(
+      (1.0 * signal.shape[0] - n_window_size) / n_window_stride
+  ))
+  if pad_to > 0:
+    if length % pad_to != 0:
+      pad_size = (pad_to - length % pad_to) * (n_window_stride)
+      signal = np.pad(signal, (0, pad_size), mode='constant')
+
+  if features_type == 'spectrogram' or features_type == 'logspectrogram':
+    features = librosa.magphase(librosa.stft(y=signal, n_fft=n_window_size, hop_length=n_window_stride), power=1)[0]
+    if features_type == "logspectrogram":
+        features = np.log(features)
+    assert num_features <= n_window_size // 2 + 1, \
+      "num_features for spectrogram should be <= (sample_freq * window_size // 2 + 1)"
+
+    # cut high frequency part
+    features = features[:num_features]
+
+  elif features_type == 'mfcc':
+    features = librosa.feature.mfcc(signal,sample_freq,n_fft=n_window_size, hop_length = n_window_stride, n_mels=num_features, n_mfcc=num_features)
+    features = features.T
+
+  elif features_type == 'logfbank' or features_type == "fbank":
+    features = get_mel(signal, sample_freq, n_window_size,n_window_stride, num_features)
+    if features_type == "logfbank":
+        features[features<=1e-5]=1e-5
+        features = np.log(features)
+  else:
+    raise ValueError('Unknown features type: {}'.format(features_type))
+
+  if pad_to > 0:
+    assert features.shape[0] % pad_to == 0
+  # mean = np.mean(features)
+  # std_dev = np.std(features)+1e-20
+  # features = (features - mean) / std_dev
+  return features, audio_duration
+
+def get_mel(signal, sample_freq, n_fft, stride, features):
+    mel_basis = librosa.filters.mel(sr=16000,
+                                    n_fft=n_fft,
+                                    n_mels=features,
+                                    htk=True,
+                                    norm=None,
+                                    fmin=0,
+                                    fmax=8000)
+    mag, ph = librosa.magphase(librosa.stft(y=signal, n_fft=n_fft, hop_length=stride), power=1)
+    feat = np.dot(mel_basis, mag)
+    feat = np.log(np.clip(feat, a_min=1e-5, a_max=None)).T
+    return feat
