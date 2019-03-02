@@ -186,7 +186,9 @@ train_params = {
         ],
         "max_duration": 16.7,
         "shuffle": True,
-	"librosa":True
+	"librosa":True,
+        "augmentation":{"noise_level_min":-40,"noise_level_max":-5},
+        "noise_files":["/noise/cafe.wav","/noise/street.wav"]
     },
 }
 
@@ -200,7 +202,9 @@ eval_params = {
             "/data/librispeech/librivox-dev-clean.csv",
         ],
         "shuffle": False,
-	"librosa":True
+	"librosa":True,
+"augmentation":{"noise_level_min":-40,"noise_level_max":-5},
+        "noise_files":["/noise/cafe.wav","/noise/street.wav"]
     },
 }
 

@@ -10,6 +10,7 @@ import tensorflow as tf
 import six
 from six import string_types
 from six.moves import range
+import librosa
 
 from open_seq2seq.data.data_layer import DataLayer
 from open_seq2seq.data.utils import load_pre_existing_vocabulary
@@ -44,6 +45,7 @@ class Speech2TextDataLayer(DataLayer):
         'window_size': float,
         'window_stride': float,
         'librosa':bool,
+        'noise_files':list
     })
 
   def __init__(self, params, model, num_workers, worker_id):
@@ -103,6 +105,11 @@ class Speech2TextDataLayer(DataLayer):
     self._files = None
     if self.params["interactive"]:
       return
+    self.all_noise = []
+    if params["noise_files"]:
+        for n in params["noise_files"]:
+            noise,sr = librosa.load(n)
+            self.all_noise.append(noise)
     for csv in params['dataset_files']:
       files = pd.read_csv(csv, encoding='utf-8')
       if self._files is None:
@@ -342,7 +349,8 @@ class Speech2TextDataLayer(DataLayer):
         cache_features=self.params.get('cache_features', False),
         cache_format=self.params.get('cache_format', 'hdf5'),
         cache_regenerate=self.params.get('cache_regenerate', False),
-        params=self.params
+        params=self.params,
+        custom_noise = self.all_noise
     )
     return source.astype(self.params['dtype'].as_numpy_dtype()), \
         np.int32([len(source)]), \
