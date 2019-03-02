@@ -204,7 +204,7 @@ eval_params = {
         "shuffle": False,
 	"librosa":True,
 "augmentation":{"noise_level_min":-40,"noise_level_max":-5},
-        "noise_files":["/noise/cafe.wav","/noise/street.wav"]
+        "noise_files":["/noise/Cafe.wav","/noise/City.wav"]
     },
 }
 
