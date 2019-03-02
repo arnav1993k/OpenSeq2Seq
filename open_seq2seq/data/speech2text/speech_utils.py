@@ -243,7 +243,7 @@ def augment_audio_signal(signal, sample_freq, augmentation):
 
   # return (normalize_signal(signal_float) * 32767.0).astype(np.int16)
   return signal_float
-def custom_noise(original_sound,custom_noise,augmentation):
+def aug_custom_noise(original_sound,custom_noise,augmentation):
     original = copy.deepcopy(original_sound)
     original_sound /= (original_sound.std() + 1e-20)
     noise_file = custom_noise[np.random.randint(len(custom_noise),1)[0]]
@@ -411,7 +411,7 @@ def get_speech_features_librosa(signal, sample_freq, num_features, pad_to=8,
         raise ValueError('time_stretch_ratio has to be included in augmentation '
                            'when augmentation it is not None')
     else:
-      signal = custom_noise(signal,custom_noise,augmentation)
+      signal = aug_custom_noise(signal,custom_noise,augmentation)
   # else:
     # signal = (normalize_signal(signal.astype(np.float32)) * 32767.0).astype(
     #     np.int16)
