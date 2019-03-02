@@ -246,7 +246,7 @@ def augment_audio_signal(signal, sample_freq, augmentation):
 def aug_custom_noise(original_sound,custom_noise,augmentation):
     original = copy.deepcopy(original_sound)
     original_sound /= (original_sound.std() + 1e-20)
-    noise_file = custom_noise[np.random.randint(len(custom_noise),1)[0]]
+    noise_file = custom_noise[np.random.randint(0,len(custom_noise),1)[0]]
 
     noise_sound = noise_file / (noise_file.std() + 1e-20)
     len_soundfile = original_sound.shape[0]
