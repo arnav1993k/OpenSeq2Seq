@@ -10,6 +10,7 @@ import numpy as np
 import python_speech_features as psf
 import resampy as rs
 import scipy.io.wavfile as wave
+import librosa
 import copy
 
 class PreprocessOnTheFlyException(Exception):
@@ -181,14 +182,14 @@ Returns:
                                        data_format=cache_format)
 
   except PreprocessOnTheFlyException:
-    sample_freq, signal = wave.read(filename)
+    sample_freq, signal = librosa.load(filename,sr=16000)
     features, duration = get_speech_features(
         signal, sample_freq, num_features, pad_to, features_type,
         window_size, window_stride, augmentation, apply_window,custom_noise=custom_noise
     )
 
   except (OSError, FileNotFoundError, RegenerateCacheException):
-    sample_freq, signal = wave.read(filename)
+    sample_freq, signal = librosa.load(filename,sr=16000)
     features, duration = get_speech_features(
         signal, sample_freq, num_features, pad_to, features_type,
         window_size, window_stride, augmentation, apply_window,custom_noise=custom_noise
