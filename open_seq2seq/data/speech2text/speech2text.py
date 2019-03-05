@@ -111,9 +111,9 @@ class Speech2TextDataLayer(DataLayer):
     self._files = None
     if self.params["interactive"]:
       return
+    all_noise = []
     if "noise_files" in params:
         if params["noise_files"] is not None:
-            all_noise = []
             for n in params["noise_files"]:
                 print("Adding noise file {}".format(n))
                 noise,sr = librosa.load(n,16000)
