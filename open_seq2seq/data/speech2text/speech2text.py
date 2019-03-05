@@ -112,11 +112,12 @@ class Speech2TextDataLayer(DataLayer):
     if self.params["interactive"]:
       return
     self.all_noise = None
-    if params["noise_files"]:
-        self.all_noise = []
-        for n in params["noise_files"]:
-            noise,sr = librosa.load(n,16000)
-            self.all_noise.append(noise)
+    if "noise_files" in params:
+        if params["noise_files"] is not None:
+            self.all_noise = []
+            for n in params["noise_files"]:
+                noise,sr = librosa.load(n,16000)
+                self.all_noise.append(noise)
     for csv in params['dataset_files']:
       files = pd.read_csv(csv, encoding='utf-8')
       if self._files is None:
