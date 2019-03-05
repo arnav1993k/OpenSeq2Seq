@@ -154,8 +154,9 @@ base_params = {
             'uniform': False,
         },
         "normalization": "batch_norm",
-        "activation_fn": lambda x: tf.minimum(tf.nn.relu(x), 20.0),
+        "activation_fn": lambda x: tf.nn.relu(x),
         "data_format": "channels_last",
+        "use_conv_mask":True,
     },
 
     "decoder": FullyConnectedCTCDecoder,
@@ -193,6 +194,8 @@ train_params = {
         "syn_subdirs": [], # Add subdirs of synthetic data
         "max_duration": 16.7,
         "shuffle": True,
+        "augmentation":{"noise_level_min":-40,"noise_level_max":-5},
+        "noise_files":["/noise/Cafe.wav","/noise/City.wav"]
     },
 }
 
@@ -203,7 +206,7 @@ eval_params = {
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
-            "/data/librispeech/librivox-dev-clean.csv",
+            "/data/librispeech/librivox-dev-other.csv",
         ],
         "shuffle": False,
     },
@@ -216,7 +219,7 @@ infer_params = {
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
-            "/data/librispeech/librivox-test-clean.csv",
+            "/data/librispeech/librivox-test-other.csv",
         ],
         "shuffle": False,
     },

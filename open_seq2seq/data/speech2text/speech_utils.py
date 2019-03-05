@@ -10,7 +10,7 @@ import numpy as np
 import python_speech_features as psf
 import resampy as rs
 import scipy.io.wavfile as wave
-
+import copy
 
 class PreprocessOnTheFlyException(Exception):
   """ Exception that is thrown to not load preprocessed features from disk;
@@ -141,7 +141,8 @@ def get_speech_features_from_file(filename,
                                   cache_features=False,
                                   cache_format="hdf5",
                                   cache_regenerate=False,
-                                  params={}):
+                                  params={},
+                                  custom_noise=None):
   """Function to get a numpy array of features, from an audio file.
       if params['cache_features']==True, try load preprocessed data from
       disk, or store after preprocesseng.
@@ -183,14 +184,14 @@ Returns:
     sample_freq, signal = wave.read(filename)
     features, duration = get_speech_features(
         signal, sample_freq, num_features, pad_to, features_type,
-        window_size, window_stride, augmentation, apply_window
+        window_size, window_stride, augmentation, apply_window,custom_noise
     )
 
   except (OSError, FileNotFoundError, RegenerateCacheException):
     sample_freq, signal = wave.read(filename)
     features, duration = get_speech_features(
         signal, sample_freq, num_features, pad_to, features_type,
-        window_size, window_stride, augmentation, apply_window
+        window_size, window_stride, augmentation, apply_window,custom_noise
     )
     preprocessed_data_path = get_preprocessed_data_path(filename, params)
     save_features(features, duration, preprocessed_data_path,
@@ -236,15 +237,46 @@ def augment_audio_signal(signal, sample_freq, augmentation):
   signal_float += np.random.randn(signal_float.shape[0]) * \
                   10.0 ** (noise_level_db / 20.0)
 
-  return (normalize_signal(signal_float) * 32767.0).astype(np.int16)
+  return signal_float
 
+def aug_custom_noise(original_sound,custom_noise,augmentation):
+    original = copy.deepcopy(original_sound)
+    original_sound /= (original_sound.std() + 1e-20)
+    noise_file = custom_noise[np.random.randint(0,len(custom_noise),1)[0]]
 
+    noise_sound = noise_file / (noise_file.std() + 1e-20)
+    len_soundfile = original_sound.shape[0]
+    low = augmentation['noise_level_min']
+    high = augmentation['noise_level_max']
+    signal_to_noise = np.random.randint(low,high,1)[0]
+    max_noise_segment_percent = np.random.randint(50,100,1)[0]
+    noise_level = 10.0 ** (signal_to_noise / 20.0)
+
+    noise_length = int(len_soundfile * 0.01 * max_noise_segment_percent)
+
+    noise_start = np.random.randint(noise_sound.shape[0])
+
+    try:
+        start_index = np.random.randint(len_soundfile - noise_length)
+    except:
+        start_index = 0
+
+    noise = np.zeros(len_soundfile)
+    indices = np.arange(noise_length) + start_index
+    noise_segment = noise_sound[noise_start:noise_start + noise_length]
+    np.put(noise, indices, noise_segment)
+    # add noise to original sound
+    signal = original_sound + noise_level * noise
+    signal *= original.std()
+    signal = np.clip(signal, a_min=-1, a_max=1)
+    return signal
 def get_speech_features(signal, sample_freq, num_features, pad_to=8,
                         features_type='spectrogram',
                         window_size=20e-3,
                         window_stride=10e-3,
                         augmentation=None,
-                        apply_window=False):
+                        apply_window=False,
+                        custom_noise=None):
   """Function to convert raw audio signal to numpy array of features.
 
   Args:
@@ -273,12 +305,15 @@ def get_speech_features(signal, sample_freq, num_features, pad_to=8,
     if 'noise_level_min' not in augmentation:
       raise ValueError('noise_level_min has to be included in augmentation '
                        'when augmentation it is not None')
-    if 'noise_level_max' not in augmentation:
-      raise ValueError('noise_level_max has to be included in augmentation '
-                       'when augmentation it is not None')
-    signal = augment_audio_signal(signal, sample_freq, augmentation)
-  else:
-    signal = (normalize_signal(signal.astype(np.float32)) * 32767.0).astype(
+    if custom_noise is None:
+      if 'noise_level_max' not in augmentation:
+            raise ValueError('noise_level_max has to be included in augmentation '
+                             'when augmentation it is not None')
+      signal = augment_audio_signal(signal, sample_freq, augmentation)
+    else:
+      signal = aug_custom_noise(signal, custom_noise, augmentation)
+
+  signal = (normalize_signal(signal.astype(np.float32)) * 32767.0).astype(
         np.int16)
 
   audio_duration = len(signal) * 1.0 / sample_freq
