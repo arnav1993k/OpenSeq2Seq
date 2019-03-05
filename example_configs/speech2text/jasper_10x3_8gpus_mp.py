@@ -11,10 +11,10 @@ base_model = Speech2Text
 
 base_params = {
     "random_seed": 0,
-    "use_horovod": True,
+    "use_horovod": False,
     "num_epochs": 400,
 
-    "num_gpus": 8,
+    "num_gpus": 4,
     "batch_size_per_gpu": 32,
     "iter_size": 1,
 
@@ -181,10 +181,10 @@ train_params = {
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
-            #"/raid/Speech/LibriSpeech/dev-other-wav-16KHz/noisy.csv"
-             "/data/librispeech/librivox-train-clean-100.csv",
-             "/data/librispeech/librivox-train-clean-360.csv",
-             "/data/librispeech/librivox-train-other-500.csv",
+            "/raid/Speech/LibriSpeech/dev-other-wav-16KHz/noisy.csv"
+             # "/data/librispeech/librivox-train-clean-100.csv",
+             # "/data/librispeech/librivox-train-clean-360.csv",
+             # "/data/librispeech/librivox-train-other-500.csv",
         ],
         "max_duration": 16.7,
         "shuffle": True,

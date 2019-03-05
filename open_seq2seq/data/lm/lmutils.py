@@ -198,8 +198,8 @@ class IMDBCorpus(object):
 
   def tokenize(self, txt):
     txt = re.sub('<br />', ' ', txt)
-    txt = re.sub('', ' ', txt)
-    txt = re.sub('', ' ', txt)
+    txt = re.sub('0X96', ' ', txt)
+    txt = re.sub('0X97', ' ', txt)
     txt = re.sub('-', ' - ', txt)
     txt = re.sub('\.', ' . ', txt)
     txt = re.sub('\+', ' + ', txt)

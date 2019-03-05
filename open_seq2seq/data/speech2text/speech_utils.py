@@ -309,8 +309,7 @@ def get_speech_features(signal, sample_freq, num_features, pad_to=8,
       raise ValueError('noise_level_max has to be included in augmentation '
                        'when augmentation it is not None')
     signal = augment_audio_signal(signal, sample_freq, augmentation)
-  else:
-    signal = (normalize_signal(signal.astype(np.float32)) * 32767.0).astype(
+  signal = (normalize_signal(signal.astype(np.float32)) * 32767.0).astype(
         np.int16)
 
   audio_duration = len(signal) * 1.0 / sample_freq

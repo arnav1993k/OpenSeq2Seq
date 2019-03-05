@@ -16,7 +16,7 @@ def dense_to_sparse(dense_tensor, sequence_length):
   return tf.SparseTensor(indices, values, shape)
 
 
-class CTCLoss(Loss):
+class KLDivLoss(Loss):
   """Implementation of the CTC loss."""
   @staticmethod
   def get_optional_params():
@@ -34,24 +34,23 @@ class CTCLoss(Loss):
     * **mask_nan** (bool) --- whether to mask nans in the loss output. Defaults
       to True.
     """
-    super(CTCLoss, self).__init__(params, model, name)
+    super(KLDivLoss, self).__init__(params, model, name)
     self._mask_nan = self.params.get("mask_nan", True)
     # this loss can only operate in full precision
     # if self.params['dtype'] != tf.float32:
     #   deco_print("Warning: defaulting CTC loss to work in float32")
     self.params['dtype'] = tf.float32
+  def kl_divergence(self,p,q):
+    return tf.reduce_sum(p * tf.log(p / q))
 
   def _compute_loss(self, input_dict):
     source_logits = input_dict['noisy_output']['logits']
     tgt_logits = input_dict['target_output']['logits']
     prob_source = tf.nn.softmax(source_logits)
+    prob_source = tf.reshape(prob_source, shape=(-1, 29))
     prob_target = tf.nn.softmax(tgt_logits)
-    total_loss = tf.distributions.kl_divergence(
-                prob_source,
-                prob_target,
-                allow_nan_stats=True,
-                name=None
-                )
+    prob_target = tf.reshape(prob_target,shape=(-1,29))
+    total_loss = self.kl_divergence(prob_source,prob_target)
 
 
     # Calculate the average loss across the batch

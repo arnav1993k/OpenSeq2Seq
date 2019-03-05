@@ -187,7 +187,7 @@ train_params = {
         "max_duration": 16.7,
         "shuffle": True,
 	"librosa":True,
-        "augmentation":{"noise_level_min":-40,"noise_level_max":-5},
+ #       "augmentation":{"noise_level_min":-40,"noise_level_max":-5},
         "noise_files":["/noise/Cafe.wav","/noise/City.wav"]
     },
 }
@@ -203,7 +203,7 @@ eval_params = {
         ],
         "shuffle": False,
 	"librosa":True,
-"augmentation":{"noise_level_min":-40,"noise_level_max":-5},
+#"augmentation":{"noise_level_min":-40,"noise_level_max":-5},
         "noise_files":["/noise/Cafe.wav","/noise/City.wav"]
     },
 }
