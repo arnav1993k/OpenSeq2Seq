@@ -184,14 +184,14 @@ Returns:
     sample_freq, signal = wave.read(filename)
     features, duration = get_speech_features(
         signal, sample_freq, num_features, pad_to, features_type,
-        window_size, window_stride, augmentation, apply_window,custom_noise
+        window_size, window_stride, augmentation, apply_window,custom_noise=custom_noise
     )
 
   except (OSError, FileNotFoundError, RegenerateCacheException):
     sample_freq, signal = wave.read(filename)
     features, duration = get_speech_features(
         signal, sample_freq, num_features, pad_to, features_type,
-        window_size, window_stride, augmentation, apply_window,custom_noise
+        window_size, window_stride, augmentation, apply_window,custom_noise=custom_noise
     )
     preprocessed_data_path = get_preprocessed_data_path(filename, params)
     save_features(features, duration, preprocessed_data_path,
