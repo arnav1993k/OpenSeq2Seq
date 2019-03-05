@@ -299,15 +299,15 @@ def get_speech_features(signal, sample_freq, num_features, pad_to=8,
     audio_duration (float): duration of the signal in seconds
   """
   if augmentation is not None:
-    if 'time_stretch_ratio' not in augmentation:
-      raise ValueError('time_stretch_ratio has to be included in augmentation '
-                       'when augmentation it is not None')
+    if 'noise_level_max' not in augmentation:
+      raise ValueError('noise_level_max has to be included in augmentation '
+                           'when augmentation it is not None')
     if 'noise_level_min' not in augmentation:
       raise ValueError('noise_level_min has to be included in augmentation '
                        'when augmentation it is not None')
     if custom_noise is None:
-      if 'noise_level_max' not in augmentation:
-            raise ValueError('noise_level_max has to be included in augmentation '
+      if 'time_stretch_ratio' not in augmentation:
+        raise ValueError('time_stretch_ratio has to be included in augmentation '
                              'when augmentation it is not None')
       signal = augment_audio_signal(signal, sample_freq, augmentation)
     else:
