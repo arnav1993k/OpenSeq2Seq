@@ -27,7 +27,7 @@ base_params = {
     "eval_steps": 2200,
     "save_checkpoint_steps": 1100,
     "num_checkpoints": 5,
-    "logdir": "w2l_log_folder",
+    "logdir": "jasper_log_folder",
 
     "optimizer": "Momentum",
     "optimizer_params": {
@@ -194,7 +194,7 @@ train_params = {
         "syn_subdirs": [], # Add subdirs of synthetic data
         "max_duration": 16.7,
         "shuffle": True,
-        "augmentation":{"noise_level_min":-40,"noise_level_max":-5},
+        "augmentation":{"noise_level_min":-50,"noise_level_max":-10},
         "noise_files":["/noise/Cafe.wav","/noise/City.wav","/noise/Bike.wav","/noise/Kitchen.wav"]
     },
 }
