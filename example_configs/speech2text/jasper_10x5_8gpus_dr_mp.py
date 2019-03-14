@@ -18,7 +18,7 @@ base_params = {
     "num_epochs": 400,
 
     "num_gpus": 8,
-    "batch_size_per_gpu": 64,
+    "batch_size_per_gpu": 32,
     "iter_size": 1,
 
     "save_summaries_steps": 100,
@@ -180,8 +180,8 @@ base_params = {
 train_params = {
     "data_layer": Speech2TextDataLayer,
     "data_layer_params": {
-        "num_audio_features": 64,
-        "input_type": "logfbank",
+        "num_audio_features": 128,
+        "input_type": "spectrogram",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
             "/data/librispeech/librivox-train-clean-100.csv",
@@ -199,8 +199,8 @@ train_params = {
 eval_params = {
     "data_layer": Speech2TextDataLayer,
     "data_layer_params": {
-        "num_audio_features": 64,
-        "input_type": "logfbank",
+        "num_audio_features": 128,
+        "input_type": "spectrogram",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
             "/data/librispeech/librivox-dev-clean.csv",
