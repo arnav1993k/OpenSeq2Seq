@@ -14,10 +14,10 @@ base_model = Speech2Text
 
 base_params = {
     "random_seed": 0,
-    "use_horovod": True,
+    "use_horovod": False,
     "num_epochs": 400,
 
-    "num_gpus": 8,
+    "num_gpus": 1,
     "batch_size_per_gpu": 64,
     "iter_size": 1,
 
@@ -27,7 +27,7 @@ base_params = {
     "eval_steps": 2200,
     "save_checkpoint_steps": 1100,
     "num_checkpoints": 5,
-    "logdir": "jasper_log_folder",
+    "logdir": "/raid/w2lp34_checkpoint/jasper10x5/w2lp-54-syn/",
 
     "optimizer": "Momentum",
     "optimizer_params": {
@@ -172,6 +172,8 @@ base_params = {
         "lm_path": "language_model/4-gram.binary",
         "trie_path": "language_model/trie.binary",
         "alphabet_config_path": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
+"infer_logits_to_pickle":True,
+        "logits_to_outputs_func":True
     },
     "loss": CTCLoss,
     "loss_params": {},
