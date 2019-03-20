@@ -181,7 +181,7 @@ base_params = {
 train_params = {
     "data_layer": Speech2TextDataLayer,
     "data_layer_params": {
-        "num_audio_features": 128,
+        "num_audio_features": 161,
         "input_type": "spectrogram",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
@@ -200,7 +200,7 @@ train_params = {
 eval_params = {
     "data_layer": Speech2TextDataLayer,
     "data_layer_params": {
-        "num_audio_features": 128,
+        "num_audio_features": 161,
         "input_type": "spectrogram",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
@@ -213,7 +213,7 @@ eval_params = {
 infer_params = {
     "data_layer": Speech2TextDataLayer,
     "data_layer_params": {
-        "num_audio_features": 128,
+        "num_audio_features": 161,
         "input_type": "logfbank",
         "vocab_file": "open_seq2seq/test_utils/toy_speech_data/vocab.txt",
         "dataset_files": [
