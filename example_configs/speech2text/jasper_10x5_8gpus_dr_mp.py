@@ -195,7 +195,7 @@ train_params = {
         "max_duration": 16.7,
         "shuffle": True,
         "augmentation":{"noise_level_min":-50,"noise_level_max":-10},
-        "noise_files":["/noise/Cafe.wav","/noise/City.wav","/noise/Bike.wav","/noise/Kitchen.wav"]
+        "noise_files":["/noise/Cafe.wav","/noise/City.wav"]
     },
 }
 
