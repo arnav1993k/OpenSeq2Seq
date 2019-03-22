@@ -384,7 +384,7 @@ def get_speech_features(signal, sample_freq, num_features,
                 )
             )
         )
-    features = librosa.feature.mfcc(sr=sr, S=S,
+    features = librosa.feature.mfcc(sr=sample_freq, S=S,
         n_mfcc=num_features, n_mels=2*num_features).T
   elif features_type == 'logfbank':
     signal = preemphasis(signal,coeff=0.97)
