@@ -49,6 +49,8 @@ writer.writerow(["File", "Transcript", "Start time", "End time"])
 
 for r in results:
   letters, starts, ends = ctc_greedy_decoder(results[r], vocab, step_size, 28, start_shift, end_shift)
+  starts = "#".join([str(start) for start in starts])
+  ends = "#".join([str(end) for end in ends])
   writer.writerow([r, letters, str(starts), str(ends)])
 
 print("Results written to : {}".format(save_file))
